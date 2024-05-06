@@ -1,15 +1,27 @@
 import React from 'react'
+import { useAuthContext } from '../../context/AuthContext'
+import useCoversation from '../../zustand/useConversation';
+import { extractTime } from '../../utils/extractTime';
 
-export default function Message() {
+export default function Message({message}) {
+
+  const {authUser} = useAuthContext();
+  const {selectedConversation} = useCoversation();
+  const fromMe = message.senderId === authUser._id;
+  const chatClassName = fromMe ? 'chat-end' : 'chat-start';
+  const profilePic = fromMe ? authUser.profilePicture : selectedConversation.profilePicture;
+  const bubbleBgColor = fromMe ? 'bg-blue-500' : 'bg-gray-500';
+  const formattedTime = extractTime(message.createdAt);
+
   return (
-    <div className='chat chat-end'>
+    <div className={`chat ${chatClassName}`}>
         <div className='chat-image avatar'>
             <div className='w-10 rounded-full'>
-                <img src='https://avatar.iran.liara.run/public/boy?username=techieMike' alt='chatBubble' />
+                <img src={profilePic} alt='chatBubble' />
             </div>
         </div>
-        <div className='chat-bubble text-white bg-blue-500'>Hello Messager</div>
-        <div className='chat-footer opacity-50 text-xs flex gap-1 items-center' >12:42</div>
+        <div className={`chat-bubble text-white ${bubbleBgColor} pb-2`}>{message.message}</div>
+        <div className='chat-footer opacity-50 text-xs flex gap-1 items-center' >{formattedTime}</div>
     </div>
   )
 }
